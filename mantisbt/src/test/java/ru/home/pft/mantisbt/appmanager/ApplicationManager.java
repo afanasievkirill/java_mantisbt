@@ -27,6 +27,7 @@ public class ApplicationManager {
   private SessionHelper sessionHelper;
   private NavigationHelper navigationHelper;
   private UserManagmentHelper userManagmentHelper;
+  private DbHelper dbHelper;
 
   public ApplicationManager(String browser) {
     this.browser = browser;
@@ -36,6 +37,7 @@ public class ApplicationManager {
   public void init() throws IOException {
     String target = System.getProperty("target", "local");
     properties.load(new FileReader(new File(String.format("src/test/resources/%s.properties", target))));
+    dbHelper = new DbHelper();
   }
 
 
@@ -115,6 +117,10 @@ public class ApplicationManager {
       userManagmentHelper = new UserManagmentHelper(this);
     }
     return userManagmentHelper;
+  }
+
+  public DbHelper db(){
+    return dbHelper;
   }
 
 }

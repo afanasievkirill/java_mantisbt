@@ -4,6 +4,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import ru.home.pft.mantisbt.model.MailMessage;
+import ru.home.pft.mantisbt.model.UserData;
 import ru.lanwen.verbalregex.VerbalExpression;
 
 import java.io.IOException;
@@ -18,12 +19,15 @@ public class ResetPassword extends TestBase {
     app.mail().start();
   }
 
-    @Test
+  @Test
   public void testResetPassword() throws IOException {
-    String username = "resetpassword";
-    String email = "resetpassword@localhost.localdomain";
+    String administrator = "administrator";
+    int administratorId = app.db().users().stream().filter((p) -> p.getUsername().equals(administrator)).iterator().next().getId();
+    UserData account = app.db().users().stream().filter((p) -> p.getId() != administratorId).iterator().next();
+    String username = account.getUsername();
+    String email = account.getEmail();
     String newPassword = "resetpassword";
-    app.session().login("administrator","root");
+    app.session().login(administrator, "root");
     app.goTo().manageUser();
     app.user().reset(username);
     List<MailMessage> mailMessages = app.mail().waitForMail(1, 10000);
