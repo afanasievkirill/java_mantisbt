@@ -6,26 +6,23 @@ import org.testng.annotations.Test;
 import ru.home.pft.mantisbt.model.MailMessage;
 import ru.lanwen.verbalregex.VerbalExpression;
 
+import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.List;
 
 import static org.testng.Assert.assertTrue;
 
-public class RegistrationTests extends TestBase {
-
-  @BeforeMethod
-  public void startMaiServer() {
-    app.mail().start();
-  }
+public class RegistrationTestsJames extends TestBase {
 
   @Test
-  public void testRegistration() throws IOException {
+  public void testRegistration() throws IOException, MessagingException {
     long now = System.currentTimeMillis();
     String email = String.format("user%s@localhost.localdomain", now);
     String user = String.format("user%s", now);
     String password = String.format("password%s", now);
+    app.james().createUser(user, password);
     app.registration().start(user, email);
-    List<MailMessage> mailMessages = app.mail().waitForMail(2, 10000);
+    List<MailMessage>mailMessages = app.james().waitForMail(user, password, 60000);
     String conirmationLink = findConfirmationLink(mailMessages, email);
     app.registration().finish(conirmationLink, password);
     assertTrue(app.newSession().login(user, password));
@@ -37,8 +34,4 @@ public class RegistrationTests extends TestBase {
     return regex.getText(mailMessage.text);
   }
 
-  @AfterMethod(alwaysRun = true)
-  public void stopMailServer() {
-    app.mail().stop();
-  }
 }
